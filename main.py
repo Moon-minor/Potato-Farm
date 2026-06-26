@@ -27,12 +27,8 @@ potato_dict={
 slot_limit = 8
 slot_price = 0
 shop_list = []
-def update_shop():
-    global slot_price
-    global shop_list
-    slot_price = int(4000**(1+len(slots)*0.01))
-    shop_list=[["Good_potato Seed",20,-1,"po"],["Tri-potato Seed",300,-1,"po"],["Extra slot",slot_price,slot_limit-len(slots),"slt"]]
-update_shop()
+slot_price = int(4000**(1+len(slots)*0.01))
+shop_list=[["Good_potato Seed",20,-1,"po"],["Tri-potato Seed",300,-1,"po"],["Extra slot",slot_price,slot_limit-len(slots),"slt"]]
 
 def save():
     global money
@@ -166,6 +162,7 @@ def harvest():
 def shop():
     global money
     global stock
+    global slot_price
     print(f"Welcome to Shop!! Money: ${money}")
     print("="*38)
     print(f"          {"Items":<16} {"Price":<8} {"Stock"}")
@@ -174,29 +171,40 @@ def shop():
             amount = "inf."
         else:
             amount = str(shop_list[i][2])
-        print(i+1, end=".")
+        print(i+1, end=". ")
         print(f"{shop_list[i][0]:<25} ${shop_list[i][1]:<8} ({amount})")
+    print(str(len(shop_list)+1)+". Exit shop")
     print("="*38)
     choice = int_ask("What do you want to buy? ")-1
-    amount = shop_list[choice][2]
-    if amount == 0:
-        print("Sorry, this item is sold out.")
+    if choice == len(shop_list):
+        print("Return to menu.")
+        return
     else:
-        if money >= shop_list[choice][1]:
-            if shop_list[choice][3] == "po":
-                print(f"You bought {shop_list[choice][0]} successfully!")
-                stock[choice+1] += 1
-                money -= shop_list[choice][1]
-                save()
-            elif shop_list[choice][3] == "slt":
-                print("You bought an extra slot!!")
-                num = str(len(slots)+1)
-                slots.append([num,"x","x"])
-                money -= shop_list[choice][1]
-                update_shop()
-                save()
+        if shop_list[choice][2] == 0:
+            print("Sorry, this item is sold out.")
         else:
-            print("You don't have enough money to buy this. :(")
+            if shop_list[choice][3] == "po":
+                amount = int_ask("How many do you want to buy? ")
+                while amount <= 0:
+                    amount = int_ask("Sorry, please input again! ")
+            else:
+                amount = 1
+            if money >= shop_list[choice][1]*amount:
+                if shop_list[choice][3] == "po":
+                    print(f"You bought {amount} {shop_list[choice][0]}(s) successfully!")
+                    stock[choice+1] += amount
+                    money -= shop_list[choice][1]*amount
+                    save()
+                elif shop_list[choice][3] == "slt":
+                    print("You bought an extra slot!!")
+                    num = str(len(slots)+1)
+                    slots.append([num,"x","x"])
+                    money -= shop_list[choice][1]*amount
+                    shop_list[choice][2] -= 1
+                    slot_price = int(4000**(1+len(slots)*0.01))
+                    save()
+            else:
+                print("You don't have enough money to buy this. :(")
 
 
 def main():
