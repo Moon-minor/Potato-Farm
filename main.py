@@ -28,7 +28,13 @@ slot_limit = 8
 slot_price = 0
 shop_list = []
 slot_price = int(4000**(1+len(slots)*0.01))
-shop_list=[["Good_potato Seed",20,-1,"po"],["Tri-potato Seed",300,-1,"po"],["Extra slot",slot_price,slot_limit-len(slots),"slt"]]
+shop_list=[
+    ["Good_potato Seed",20,-1,"po"],
+    ["Tri-potato Seed",300,-1,"po"],
+    ["Extra slot",slot_price,slot_limit-len(slots),"slt"]
+]
+
+
 
 def save():
     global money
@@ -91,8 +97,6 @@ def rate(slot_no):
 
 def show_slots():
     headers = ["Slot", "Potato", "Progress"]
-
-   
     print(f"{headers[0]:<4} {headers[1]:<15} {headers[2]:<5}")
     print("-" * 38) 
     
@@ -103,22 +107,37 @@ def show_slots():
             
         print(f"{row[0]:<4} {row[1]:<15} {temp_time:<5}")
 
-def menu():
+def menu(actions):
     global money    
     print(f"Welcome to Potato Farm!! Money: ${money}\n"+"="*38)
-    print("1.Farm\n2.Shop\n3.Exit")
+    for key, data in actions.items():
+        print(f"{key}. {data['label']}")
     choice = input("Enter Choice: ")
     print("=" * 38)
     return choice
 
 def farm():
-    print("Here is your farm")
-    show_slots()
-    print("=" * 38)
-    print("1.Plant\n2.Harvest ALL\n3.Return")
-    choice = input("Enter Choice: ")
-    print("=" * 38)
-    return choice
+    farm_actions = {
+        "1": {"label": "Plant", "action": plant},
+        "2": {"label": "Harvest ALL", "action": harvest}
+    }
+    while True:
+        print("Here is your farm")
+        show_slots()
+        print("=" * 38)
+        for key, data in farm_actions.items():
+            print(f"{key}. {data['label']}")
+        print("3. Return")
+        
+        choice = input("Enter Choice: ")
+        print("=" * 38)
+        
+        if choice == "3":
+            break 
+        elif choice in farm_actions:
+            farm_actions[choice]["action"]()
+        else:
+            print("Invalid choice!")
 
 
 def plant():
@@ -208,25 +227,21 @@ def shop():
 
 
 def main():
-    farm_flag = False
-    end = False
-    while not end:
-        choice = menu()
-        if choice == "1":
-            farm_flag = True
-            while farm_flag:
-                choice = farm()
-                if choice == "1":
-                    plant()
-                elif choice == "2":
-                    harvest()
-                elif choice == "3":
-                    farm_flag = False
-        elif choice == "2":
-            shop()
-        elif choice == "3":
+    menu_actions = {
+        "1": {"label": "Farm", "action": farm},
+        "2": {"label": "Shop", "action": shop},
+        "3": {"label": "Exit", "action": "exit"} 
+    }
+    while True:
+        choice = menu(menu_actions)
+        if choice == "3":
             save()
             print("See you next time!")
-            end = True
             f.close()
+            break
+        elif choice in menu_actions:
+            menu_actions[choice]["action"]() 
+        else:
+            print("Invalid choice! Please try again.")
+            
 main()
