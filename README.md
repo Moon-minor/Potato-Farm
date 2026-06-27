@@ -12,7 +12,8 @@ Before executing the game, you would need to have Python installed in your compu
 - 💡 *Windows Users: Make sure to check the box that says **"Add Python to PATH"** during installation, or your terminal won't recognize the `python` command.*
 ## 📕 How to play
 Very Simple!
-use keyboard to input number(e.g. 1, 2, 3) and press "Enter" to confirm action
+use keyboard to input number(e.g. 1, 2, 3) and press "Enter" to confirm action<br>
+Demo Video: https://youtu.be/MP7ziEfAOCg
 ## 📩 Installation
 1. Download the zip file from github
 2. Unzip the contents into folder
