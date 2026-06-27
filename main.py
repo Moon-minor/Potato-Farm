@@ -4,17 +4,25 @@ f=open("farm.txt", "r")
 money = f.readline()
 money = int(money.replace("\n",""))
 stock = []
+logbk = []
+
 temp = f.readline()
 temp = temp.replace("\n","")
 temp = temp.split(",")
 for i in temp:
     stock.append(int(i))
 
+temp = f.readline()
+temp = temp.replace("\n","")
+temp = temp.split(",")
+for i in temp:
+    logbk.append(int(i))
+
 file = f.read()
 slots = file.split("\n")
 for i  in range(len(slots)):
     temp = slots[i].split(" ")
-    slots [i] =temp
+    slots[i] =temp
 
 #time(s),price
 potato_list=["Potato", "Good_potato", "Tri-potato"]
@@ -40,14 +48,22 @@ def save():
     global money
     global stock
     global slots
+    global logbk
     str_money = str(money)
     str_stock = ""
+    str_logbk = ""
     for i in range(len(stock)):
         str_stock += str(stock[i])
         if i != len(stock)-1:
             str_stock += ","
+
+    for i in range(len(logbk)):
+        str_logbk += str(logbk[i])
+        if i != len(logbk)-1:
+            str_logbk += ","
+
     old = open("farm.txt", "w")
-    old.write(str_money+"\n"+str_stock+"\n")
+    old.write(str_money+"\n"+str_stock+"\n"+str_logbk+"\n")
     for j in range(len(slots)):
         temp = slots[j]
         for i in range(len(temp)):
@@ -141,6 +157,7 @@ def farm():
 
 
 def plant():
+    global logbk
     print("Which potato do you want to plant?")
     print(f"{"Potato_type":<17} {"Required time":<13} {"Stock"}")
     print("-" * 38) 
@@ -162,6 +179,7 @@ def plant():
             print(f"You successfully plant {potato_list[choice]} in slot {farm_no}!")
             slots[farm_no-1][1] = potato_list[choice]
             slots[farm_no-1][2] = str(t.time())
+            logbk[choice] += 1
             if stock[choice] != -1:
                 stock[choice] -= 1
         else:
@@ -178,6 +196,7 @@ def harvest():
             slots[i][1] = "x"
             slots[i][2] = "x"
     save()
+
 def shop():
     global money
     global stock
@@ -225,16 +244,57 @@ def shop():
             else:
                 print("You don't have enough money to buy this. :(")
 
-
+def show_logbk():
+    print("Here is your logbook!")
+    print("="*45)
+    i=0
+    while True:
+        potato = potato_list[i]
+        req_time = time_convert(potato_dict[potato][0])
+        amount = logbk[i]
+        print(
+        f"""    __________________   __________________
+|||| Potato Name:      |                   ||||
+||||  {potato:^15}  |     ~~Record~~    ||||
+||||                   |                   ||||
+|||| Required Time:    |   {amount:^13}   ||||
+||||  {req_time:^15}  |      planted      ||||
+||||                   |     --==*==--     ||||
+||||                   |                   ||||
+||||                   |                   ||||
+||||                   |                   ||||
+||||                   |                   ||||
+||||__________________ | __________________||||
+||/===================\|/===================\||
+`--------------------~___~-------------------''
+    """
+        )
+        print("="*45)
+        print("1.Previous   2.Next  3.Exit logbook")
+        choice = int_ask("Enter Choice: ")
+        if choice == 1:
+            if i == 0:
+                i = 0
+            else:
+                i -= 1
+        elif choice == 2:
+            if i == len(logbk)-1:
+                pass
+            else:
+                i += 1
+        elif choice == 3:
+            break
+        print("\033[18F\033[K", end="") 
 def main():
     menu_actions = {
         "1": {"label": "Farm", "action": farm},
         "2": {"label": "Shop", "action": shop},
-        "3": {"label": "Exit", "action": "exit"} 
+        "3": {"label": "Logbook", "action": show_logbk},
+        "4": {"label": "Exit", "action": "exit"} 
     }
     while True:
         choice = menu(menu_actions)
-        if choice == "3":
+        if menu_actions[choice]["action"] == "exit":
             save()
             print("See you next time!")
             f.close()
