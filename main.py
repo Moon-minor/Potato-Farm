@@ -1,9 +1,11 @@
 import time as t
+import random
 
 f=open("farm.txt", "r")
 money = f.readline()
 money = int(money.replace("\n",""))
 stock = []
+invent = []
 logbk = []
 
 temp = f.readline()
@@ -11,6 +13,12 @@ temp = temp.replace("\n","")
 temp = temp.split(",")
 for i in temp:
     stock.append(int(i))
+
+temp = f.readline()
+temp = temp.replace("\n","")
+temp = temp.split(",")
+for i in temp:
+    invent.append(int(i))
 
 temp = f.readline()
 temp = temp.replace("\n","")
@@ -24,12 +32,12 @@ for i  in range(len(slots)):
     temp = slots[i].split(" ")
     slots[i] =temp
 
-#time(s),price
+#time(s),min_price,max_price
 potato_list=["Potato", "Good_potato", "Tri-potato"]
 potato_dict={
-    "Potato":[30,15],
-    "Good_potato":[120,120],
-    "Tri-potato":[1800,3000]
+    "Potato":[30,12,20],
+    "Good_potato":[120,120,160],
+    "Tri-potato":[1800,3000,4000]
 }
 #name,price,stock,type
 slot_limit = 8
@@ -48,14 +56,21 @@ def save():
     global money
     global stock
     global slots
+    global invent
     global logbk
     str_money = str(money)
     str_stock = ""
+    str_invent = ""
     str_logbk = ""
     for i in range(len(stock)):
         str_stock += str(stock[i])
         if i != len(stock)-1:
             str_stock += ","
+
+    for i in range(len(invent)):
+        str_invent += str(invent[i])
+        if i != len(invent)-1:
+            str_invent += ","
 
     for i in range(len(logbk)):
         str_logbk += str(logbk[i])
@@ -63,7 +78,7 @@ def save():
             str_logbk += ","
 
     old = open("farm.txt", "w")
-    old.write(str_money+"\n"+str_stock+"\n"+str_logbk+"\n")
+    old.write(str_money+"\n"+str_stock+"\n"+str_invent+"\n"+str_logbk+"\n")
     for j in range(len(slots)):
         temp = slots[j]
         for i in range(len(temp)):
@@ -187,12 +202,12 @@ def plant():
         save()
 
 def harvest():
-    global money
+    global invent
     for i in range(len(slots)):
         if rate(str(i+1)) == "100%":
-            profit = potato_dict[slots[i][1]][1]
-            money += profit
-            print(f"You sell {slots[i][1]} and earn ${profit} !")
+            potato = slots[i][1]
+            invent[potato_list.index(potato)] += 1
+            print(f"You harvest a(n) {potato} !")
             slots[i][1] = "x"
             slots[i][2] = "x"
     save()
@@ -244,6 +259,42 @@ def shop():
             else:
                 print("You don't have enough money to buy this. :(")
 
+def market():
+    global invent
+    global money
+    price_list = []
+    print("Welcome to POTA-market!")
+    print("="*38)
+    for i in range(len(invent)):
+        potato = potato_list[i]
+        cur_price = int(random.uniform(potato_dict[potato][1],potato_dict[potato][2]))
+        price_list.append(cur_price)
+
+    while True:
+        print(f"   {"Potato":<16} {"Price":<8} {"Inventory":}")
+        for i in range(len(invent)):
+            potato = potato_list[i]
+            amount = str(invent[i])
+            print(i+1, end=". ")
+            print(f"{potato:<16} ${price_list[i]:<8} ({amount})")
+        print(str(len(potato_list)+1)+". Exit Market")
+        print("="*38)
+        choice = int_ask("What do you want to sell? ")-1
+        if choice == len(potato_list):
+            print("Return to menu.")
+            return 
+        potato = potato_list[choice]
+        if invent[choice] == 0:
+            print(f"Sorry, you have no {potato} to sell.")
+            continue
+        else:
+            profit = price_list[choice]*invent[choice]
+            money += profit
+            print(f"You sell all {potato} and earn ${profit} !")
+            invent[choice] = 0
+            save()
+
+
 def show_logbk():
     print("Here is your logbook!")
     print("="*45)
@@ -283,14 +334,14 @@ def show_logbk():
             else:
                 i += 1
         elif choice == 3:
-            break
-        print("\033[18F\033[K", end="") 
+            break 
 def main():
     menu_actions = {
         "1": {"label": "Farm", "action": farm},
-        "2": {"label": "Shop", "action": shop},
-        "3": {"label": "Logbook", "action": show_logbk},
-        "4": {"label": "Exit", "action": "exit"} 
+        "2": {"label": "Market", "action": market},
+        "3": {"label": "Shop", "action": shop},
+        "4": {"label": "Logbook", "action": show_logbk},
+        "5": {"label": "Exit", "action": "exit"} 
     }
     while True:
         choice = menu(menu_actions)
