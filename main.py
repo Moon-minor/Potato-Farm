@@ -304,7 +304,7 @@ def show_logbk():
         req_time = time_convert(potato_dict[potato][0])
         amount = logbk[i]
         print(
-        f"""    __________________   __________________
+        fr"""    __________________   __________________
 |||| Potato Name:      |                   ||||
 ||||  {potato:^15}  |     ~~Record~~    ||||
 ||||                   |                   ||||
@@ -324,14 +324,10 @@ def show_logbk():
         print("1.Previous   2.Next  3.Exit logbook")
         choice = int_ask("Enter Choice: ")
         if choice == 1:
-            if i == 0:
-                i = 0
-            else:
+            if i != 0:
                 i -= 1
         elif choice == 2:
-            if i == len(logbk)-1:
-                pass
-            else:
+            if i != len(logbk)-1:
                 i += 1
         elif choice == 3:
             break 
@@ -348,6 +344,7 @@ def main():
         if menu_actions[choice]["action"] == "exit":
             save()
             print("See you next time!")
+            t.sleep(1)
             f.close()
             break
         elif choice in menu_actions:
